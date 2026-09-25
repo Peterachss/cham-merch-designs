@@ -4,10 +4,10 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Chạm Merch Designs</title>
-<meta name="description" content="Hoodie and T-shirt design concepts for Chạm — Changing Lives Through Compassion.">
+<meta name="description" content="Hoodie and T-shirt designs and new ideas for Chạm — Changing Lives Through Compassion.">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@500;600;700&family=Nunito:wght@400;600;700&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Caveat:wght@700&family=Fredoka:wght@500;600;700&family=Nunito:wght@400;600;700&display=swap" rel="stylesheet">
 <style>
   :root {
     --bg: #fffdf2;
@@ -77,7 +77,7 @@
     border-radius: 16px; overflow: hidden; box-shadow: var(--shadow);
     display: flex; flex-direction: column;
   }
-  figure button {
+  figure > button {
     all: unset; cursor: zoom-in; display: block; background: #f4f1e6;
   }
   figure img { display: block; width: 100%; height: 360px; object-fit: contain; }
@@ -86,13 +86,45 @@
   figcaption strong { display: block; font-size: 1rem; }
   figcaption span { color: var(--muted); font-size: .92rem; }
 
+  .tabs {
+    display: inline-flex; gap: 4px; margin-top: 26px; padding: 4px;
+    background: var(--surface); border: 1.5px solid var(--line); border-radius: 999px;
+  }
+  .tabs button {
+    font: 700 1rem "Nunito", sans-serif; color: var(--muted); background: none;
+    border: 0; padding: 9px 20px; border-radius: 999px; cursor: pointer;
+  }
+  .tabs button[aria-selected="true"] { background: var(--pink); color: #fff; }
+  .count {
+    display: inline-block; min-width: 1.4em; padding: 0 6px; margin-left: 4px;
+    border-radius: 999px; background: rgba(0,0,0,.08); font-size: .82rem;
+  }
+  .tabs button[aria-selected="true"] .count { background: rgba(255,255,255,.28); }
+  .ideas-intro { text-align: center; color: var(--muted); max-width: 62ch; margin: 8px auto 26px; }
+  .grid.ideas { grid-template-columns: repeat(auto-fill, minmax(min(100%, 460px), 1fr)); }
+  svg.mock { display: block; width: 100%; height: auto; }
+  svg.mock .shirt { fill: var(--shirt); }
+  svg.mock .ink { fill: var(--dink); }
+  svg.mock .inks { stroke: var(--dink); }
+  svg.mock .lbl { fill: #7a7a72; font: 700 11px "Nunito", sans-serif; letter-spacing: 2px; }
+  .idea-head { display: flex; justify-content: space-between; align-items: baseline; gap: 10px; flex-wrap: wrap; }
+  .idea-head strong { font-family: "Fredoka", sans-serif; font-weight: 600; font-size: 1.15rem; }
+  .kind { font-size: .8rem !important; font-weight: 700; text-transform: uppercase; letter-spacing: .05em; }
+  .swatches { display: flex; gap: 8px; margin-top: 12px; }
+  .sw {
+    width: 28px; height: 28px; border-radius: 50%; cursor: pointer;
+    border: 2px solid var(--line); box-shadow: inset 0 0 0 1px rgba(0,0,0,.12);
+  }
+  .sw[aria-pressed="true"] { outline: 2.5px solid var(--ink); outline-offset: 2px; }
+
   footer { text-align: center; color: var(--muted); padding: 48px 0 56px; font-size: .92rem; }
 
   dialog {
     border: 0; padding: 0; background: transparent; max-width: 96vw; max-height: 94vh;
   }
   dialog::backdrop { background: rgba(10, 12, 14, .88); }
-  dialog img { display: block; max-width: 96vw; max-height: 84vh; border-radius: 10px; margin: 0 auto; }
+  #lb-stage img { display: block; max-width: 96vw; max-height: 84vh; border-radius: 10px; margin: 0 auto; }
+  #lb-stage svg { display: block; width: min(92vw, 1300px, 150vh); background: #f4f1e6; border-radius: 10px; margin: 0 auto; }
   dialog p { color: #f1efe8; text-align: center; margin: 12px 0 0; font-weight: 600; }
   .lb-btn {
     position: fixed; top: 50%; transform: translateY(-50%);
@@ -118,14 +150,19 @@
     </div>
     <h1>Chạm Merch Designs</h1>
     <p class="tagline">Changing Lives Through Compassion · hoodie &amp; T-shirt concepts</p>
+    <div class="tabs" role="tablist" aria-label="Sections">
+      <button role="tab" id="tab-designs" aria-controls="panel-designs" aria-selected="true">Our designs</button>
+      <button role="tab" id="tab-ideas" aria-controls="panel-ideas" aria-selected="false">More ideas <span class="count" id="ideas-count"></span></button>
+    </div>
+  </header>
+
+  <div id="panel-designs" role="tabpanel" aria-labelledby="tab-designs">
     <nav class="filters" aria-label="Filter designs">
       <button data-filter="all" aria-pressed="true">All</button>
       <button data-filter="final" aria-pressed="false">Colorways</button>
       <button data-filter="canva" aria-pressed="false">Canva drafts</button>
       <button data-filter="sketch" aria-pressed="false">Sketches</button>
-      <button data-filter="tails" aria-pressed="false">Tails Up!</button>
     </nav>
-  </header>
 
   <main>
     <section class="group" data-group="final">
@@ -186,33 +223,41 @@
       </div>
     </section>
 
-    <section class="group" data-group="tails">
-      <div class="group-head">
-        <h2>Tails Up!</h2>
-        <span class="tag" style="background:var(--blue);color:#fff">Tails Up!</span>
-      </div>
-      <p class="group-desc">A wagging-puppy hoodie (yellow) and tee (pink) with paw prints on the front, “tails up!” on the back, and “Watch the tail wag!” at the hem.</p>
-      <div class="grid wide">
-        <figure>
-          <button data-src="images/tails-up-hoodie-tee.jpg"><img src="images/tails-up-hoodie-tee.jpg" alt="Tails Up hoodie and T-shirt, front and back, with wagging puppy and paw prints" loading="lazy"></button>
-          <figcaption><strong>Hoodie + tee</strong><span>White hoodie, light-blue tee with Vietnam flag sleeve</span></figcaption>
-        </figure>
-      </div>
-    </section>
   </main>
+  </div>
+
+  <div id="panel-ideas" role="tabpanel" aria-labelledby="tab-ideas" hidden>
+    <p class="ideas-intro">New concepts built from Chạm’s clothesline, handprints and motto: two T-shirts and two hoodies. Tap a colour dot to try another shirt colour, or tap a mockup to see it bigger.</p>
+    <div class="grid ideas" id="ideas-grid"></div>
+  </div>
 
   <footer>Chạm · Changing Lives Through Compassion</footer>
 </div>
 
 <dialog id="lightbox" aria-label="Design preview">
-  <img id="lb-img" alt="">
+  <div id="lb-stage"></div>
   <p id="lb-cap"></p>
   <button class="lb-btn lb-close" aria-label="Close">×</button>
   <button class="lb-btn lb-prev" aria-label="Previous">‹</button>
   <button class="lb-btn lb-next" aria-label="Next">›</button>
 </dialog>
 
+<script src="ideas.js"></script>
 <script>
+  const tabs = document.querySelectorAll('[role="tab"]');
+  function selectTab(id) {
+    tabs.forEach(t => {
+      const on = t.id === id;
+      t.setAttribute("aria-selected", on);
+      document.getElementById(t.getAttribute("aria-controls")).hidden = !on;
+    });
+  }
+  tabs.forEach(t => t.addEventListener("click", () => {
+    selectTab(t.id);
+    history.replaceState(null, "", t.id === "tab-ideas" ? "#ideas" : location.pathname);
+  }));
+  if (location.hash === "#ideas") selectTab("tab-ideas");
+
   const filterBtns = document.querySelectorAll("nav.filters button");
   const groups = document.querySelectorAll("section.group");
   filterBtns.forEach(btn => btn.addEventListener("click", () => {
@@ -222,21 +267,30 @@
   }));
 
   const lb = document.getElementById("lightbox");
-  const lbImg = document.getElementById("lb-img");
+  const lbStage = document.getElementById("lb-stage");
   const lbCap = document.getElementById("lb-cap");
   let items = [], idx = 0;
   function show(i) {
     idx = (i + items.length) % items.length;
     const b = items[idx];
-    lbImg.src = b.dataset.src;
-    lbImg.alt = b.querySelector("img").alt;
+    if (b.dataset.src) {
+      const img = new Image();
+      img.src = b.dataset.src;
+      img.alt = b.querySelector("img").alt;
+      lbStage.replaceChildren(img);
+    } else {
+      lbStage.replaceChildren(b.querySelector("svg").cloneNode(true));
+    }
     lbCap.textContent = b.closest("figure").querySelector("strong").textContent;
   }
-  document.querySelectorAll("figure button").forEach(b => b.addEventListener("click", () => {
-    items = [...document.querySelectorAll("section.group:not([hidden]) figure button")];
+  document.addEventListener("click", e => {
+    const b = e.target.closest("figure > button");
+    if (!b) return;
+    const panel = b.closest('[role="tabpanel"]');
+    items = [...panel.querySelectorAll("section.group:not([hidden]) figure > button, .ideas figure > button")];
     show(items.indexOf(b));
     lb.showModal();
-  }));
+  });
   lb.querySelector(".lb-close").onclick = () => lb.close();
   lb.querySelector(".lb-prev").onclick = () => show(idx - 1);
   lb.querySelector(".lb-next").onclick = () => show(idx + 1);

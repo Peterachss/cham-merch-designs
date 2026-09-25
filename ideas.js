@@ -1,93 +1,22 @@
 // "More ideas" tab: concept mockups drawn as inline SVG (front + back),
-// each with clickable shirt colourways. The hand-made look comes from
-// wobbly marker lines, crayon and paint texture, bouncy hand lettering and
-// colour printed slightly off-register, like a small-batch screen print.
+// each with clickable shirt colourways. Every concept borrows a real print
+// tradition and prints in one or two flat ink colours, like a screen print.
 
-const INK_DARK = "#26221f";
-const INK_LIGHT = "#f4ecdc";
-const C = { coral: "#e8604c", mustard: "#f0b43c", sky: "#4f8fc9", leaf: "#6fa66a", pink: "#ee86a6", peg: "#c9a36b" };
+const INK_DARK = "#1d1d1f";
+const INK_LIGHT = "#f1ede4";
+const SIGN_RED = "#c8202b";
+const SIGN_YELLOW = "#f2c230";
+const VARSITY_GREEN = "#1f4d3a";
 const SHIRTS = {
-  white: ["White", "#ffffff"], cream: ["Cream", "#f6efe0"], sky: ["Sky blue", "#cfe3f7"],
-  sage: ["Sage", "#c5d6bd"], pink: ["Pink", "#f7d0da"], butter: ["Butter", "#fbe9a8"],
-  lavender: ["Lavender", "#ddd3f5"], charcoal: ["Charcoal", "#34383c"], navy: ["Navy", "#26334d"]
+  white: ["White", "#ffffff"], heather: ["Heather grey", "#c9cacc"], stone: ["Stone", "#ddd5c4"],
+  sage: ["Sage", "#c5d6bd"], sky: ["Sky blue", "#cfe3f7"], black: ["Black", "#1d1d1f"],
+  navy: ["Navy", "#26334d"], forest: ["Forest green", "#2d4637"]
 };
-const DARK_SHIRTS = new Set(["charcoal", "navy"]);
+const DARK_SHIRTS = new Set(["black", "navy", "forest"]);
 
-// Seeded randomness so the "hand" wobbles the same way on every load.
-function rng(seed) {
-  let s = seed % 2147483647 || 1;
-  return () => (s = (s * 16807) % 2147483647) / 2147483647;
-}
-
-// ---------- texture filters + shared shapes ----------
-function paintFilter(id, seed) {
-  return `<filter id="${id}" x="-20%" y="-20%" width="140%" height="140%">
-    <feTurbulence type="fractalNoise" baseFrequency="0.05" numOctaves="3" seed="${seed}" result="w"/>
-    <feDisplacementMap in="SourceGraphic" in2="w" scale="3.2" xChannelSelector="R" yChannelSelector="G" result="d"/>
-    <feTurbulence type="fractalNoise" baseFrequency="0.14" numOctaves="3" seed="${seed + 20}"/>
-    <feColorMatrix type="matrix" values="0 0 0 0 0  0 0 0 0 0  0 0 0 0 0  0 0 0 -3.4 2.75" result="blotch"/>
-    <feComposite in="d" in2="blotch" operator="in" result="p"/>
-    <feTurbulence type="fractalNoise" baseFrequency="1.1" numOctaves="1" seed="${seed + 40}"/>
-    <feColorMatrix type="matrix" values="0 0 0 0 0  0 0 0 0 0  0 0 0 0 0  0 0 0 -2 1.95"/>
-    <feComposite in="p" operator="in"/>
-  </filter>`;
-}
-
-const DEFS = `
-<svg width="0" height="0" style="position:absolute" aria-hidden="true" focusable="false"><defs>
-  <filter id="f-rough" x="-5%" y="-5%" width="110%" height="110%">
-    <feTurbulence type="fractalNoise" baseFrequency="0.045" numOctaves="2" seed="4"/>
-    <feDisplacementMap in="SourceGraphic" scale="3.2" xChannelSelector="R" yChannelSelector="G"/>
-  </filter>
-  <filter id="f-text" x="-5%" y="-10%" width="110%" height="120%">
-    <feTurbulence type="fractalNoise" baseFrequency="0.06" numOctaves="2" seed="9"/>
-    <feDisplacementMap in="SourceGraphic" scale="1.8" xChannelSelector="R" yChannelSelector="G"/>
-  </filter>
-  <filter id="f-crayon" x="-5%" y="-5%" width="110%" height="110%">
-    <feTurbulence type="fractalNoise" baseFrequency="0.05" numOctaves="2" seed="11"/>
-    <feDisplacementMap in="SourceGraphic" scale="4" xChannelSelector="R" yChannelSelector="G" result="d"/>
-    <feTurbulence type="fractalNoise" baseFrequency="0.9 0.3" numOctaves="2" seed="3"/>
-    <feColorMatrix type="matrix" values="0 0 0 0 0  0 0 0 0 0  0 0 0 0 0  0 0 0 -3.2 2.6"/>
-    <feComposite in="d" operator="in"/>
-  </filter>
-  ${paintFilter("f-paint0", 5)}${paintFilter("f-paint1", 17)}${paintFilter("f-paint2", 29)}
-  <g id="s-print">
-    <ellipse cx="0" cy="10" rx="15" ry="17"/>
-    <ellipse cx="-9.5" cy="-15" rx="4.6" ry="11" transform="rotate(-14 -9.5 -15)"/>
-    <ellipse cx="-2" cy="-19.5" rx="4.9" ry="12.5" transform="rotate(-4 -2 -19.5)"/>
-    <ellipse cx="6.2" cy="-17.5" rx="4.6" ry="11.5" transform="rotate(7 6.2 -17.5)"/>
-    <ellipse cx="13" cy="-9" rx="4" ry="8.5" transform="rotate(22 13 -9)"/>
-    <ellipse cx="-18" cy="6" rx="4.8" ry="10" transform="rotate(-52 -18 6)"/>
-  </g>
-</defs></svg>`;
-
-const HEART = "M0,14 C-7,8 -19,1 -18,-7 C-17,-15 -7,-17 -1,-8 C6,-17 17,-15 18,-6 C18,2 7,9 0,14 Z";
-
-// A colour fill printed a touch off-register under a wobbly marker outline.
-function inked(d, fill, sw = 2.2) {
-  return `<path d="${d}" fill="${fill}" filter="url(#f-crayon)" transform="translate(2.6,1.9)"/>
-    <path d="${d}" fill="none" class="inks" stroke-width="${sw}" stroke-linejoin="round" stroke-linecap="round" filter="url(#f-rough)"/>`;
-}
-
-// A loose marker stroke; colour defaults to the shirt's ink.
-function scribble(d, color, sw = 2.4, extra = "") {
-  const paint = color ? `stroke="${color}"` : `class="inks"`;
-  return `<path d="${d}" fill="none" ${paint} stroke-width="${sw}" stroke-linecap="round" stroke-linejoin="round" filter="url(#f-rough)" ${extra}/>`;
-}
-
-// Hand lettering: every letter sits a little higher or lower and leans a little.
-function hand(str, x, y, size, { font = "sh", fill, weight = 700, rot = 0, bounce = 0.07, tilt = 5, seed = 1, anchor = "middle" } = {}) {
-  const r = rng(seed * 7919 + 13);
-  let prev = 0;
-  const dys = [], rots = [];
-  for (const ch of Array.from(str)) {
-    const o = ch === " " ? prev : (r() - 0.5) * 2 * bounce * size;
-    dys.push((o - prev).toFixed(1));
-    rots.push(((r() - 0.5) * 2 * tilt).toFixed(1));
-    prev = o;
-  }
-  const paint = fill ? `class="${font}" fill="${fill}"` : `class="ink ${font}"`;
-  return `<text ${paint} x="${x}" y="${y}" dy="${dys.join(" ")}" rotate="${rots.join(" ")}" transform="rotate(${rot} ${x} ${y})" text-anchor="${anchor}" font-size="${size}" font-weight="${weight}" filter="url(#f-text)">${str}</text>`;
+function bezier([p0, p1, p2, p3], t) {
+  const u = 1 - t;
+  return [0, 1].map(i => u * u * u * p0[i] + 3 * u * u * t * p1[i] + 3 * u * t * t * p2[i] + t * t * t * p3[i]);
 }
 
 // ---------- garments (each drawn in a 400 x 460 box) ----------
@@ -127,153 +56,144 @@ function hoodie(side) {
 }
 
 const GARMENTS = {
-  tee: { draw: tee, back: "translate(200,245)", chest: "translate(252,118)" },
-  hoodie: { draw: hoodie, back: "translate(200,262) scale(0.8)", chest: "translate(250,160) scale(0.95)" }
+  tee: { draw: tee, back: "translate(200,245)", chest: "translate(252,118)", center: "translate(200,170)" },
+  hoodie: { draw: hoodie, back: "translate(200,262) scale(0.8)", chest: "translate(250,160) scale(0.95)", center: "translate(200,240)" }
 };
 
 
 // ---------- design concepts ----------
-const CLOTHES = {
-  tee: "M-18,0 L-7,0 Q0,6 7,0 L18,0 L28,11 L20,18 L16,14 L16,42 L-16,42 L-16,14 L-20,18 L-28,11 Z",
-  dress: "M-9,0 Q0,5 9,0 L12,12 L23,45 Q0,49 -23,45 L-12,12 Z",
-  onesie: "M-16,0 L-7,0 Q0,7 7,0 L16,0 L25,9 L18,17 L14,14 L14,34 Q14,41 7,41 L2,41 L0,36 L-2,41 L-7,41 Q-14,41 -14,34 L-14,14 L-18,17 L-25,9 Z",
-  pants: "M-16,0 L16,0 L19,44 L5,44 L0,16 L-5,44 L-19,44 Z"
+const LINE = `fill="none" class="inks" stroke-linecap="round" stroke-linejoin="round"`;
+
+// Care label: laundry symbols drawn like the real ISO ones.
+const CARE_ICONS = {
+  wash: "M0,1 L3,13 L17,13 L20,1 M1,5 q2.25,-2.5 4.5,0 t4.5,0 t4.5,0 t4.5,0",
+  dry: "M1,1 L19,1 L19,15 L1,15 Z M1,1 Q10,8 19,1",
+  bleach: "M10,0 L20,15 L0,15 Z M4,3 L16,15 M16,3 L4,15",
+  pass: "M16,8 A6,6 0 1 0 10,14 M10,14 L13,11 M10,14 L13,17"
 };
-const PEG = "M-2,-6 L2,-6 L2.4,6 L-2.4,6 Z";
-const LETTER_Y = { tee: 31, dress: 35, onesie: 28, pants: 22 };
 
-function hangingItem(kind, color, letter, seed) {
-  return `${inked(CLOTHES[kind], color)}
-    <g transform="translate(-8,0)">${inked(PEG, C.peg, 1.4)}</g><g transform="translate(8,0)">${inked(PEG, C.peg, 1.4)}</g>
-    ${hand(letter, 0, LETTER_Y[kind], 19, { weight: 800, seed, tilt: 0 })}`;
+function careRow(icon, label, y) {
+  return `<path d="${CARE_ICONS[icon]}" ${LINE} stroke-width="1.4" transform="translate(-66,${y})"/>
+    <text class="ink an" x="-38" y="${y + 12}" font-size="10" font-weight="600" letter-spacing=".6">${label}</text>`;
 }
 
-function clothesline() {
-  const sag = x => -116 + (1 - (x / 104) ** 2) * 30 - x * 0.03;
-  const items = [["tee", -68, -8, C.coral, "C"], ["dress", -24, 5, C.mustard, "H"], ["onesie", 20, -4, C.sky, "Ạ"], ["pants", 66, 9, C.leaf, "M"]];
-  return `${scribble("M-104,-116 C-50,-84 40,-82 104,-122", null, 2)}
-    ${scribble("M-104,-114 C-48,-86 42,-80 104,-120", null, 1, 'opacity=".45"')}
-    ${items.map(([k, x, r, c, l], i) => `<g transform="translate(${x},${sag(x).toFixed(1)}) rotate(${r})">${hangingItem(k, c, l, 50 + i)}</g>`).join("")}`;
-}
+// Saigon wires: small outline clothes for the line between the balconies.
+const LITTLE = {
+  tee: "M-9,0 L-3.5,0 Q0,3 3.5,0 L9,0 L14,5.5 L10,9 L8,7 L8,21 L-8,21 L-8,7 L-10,9 L-14,5.5 Z",
+  shorts: "M-8,0 L8,0 L9.5,16 L2.5,16 L0,7 L-2.5,16 L-9.5,16 Z",
+  onesie: "M-8,0 L-3.5,0 Q0,3.5 3.5,0 L8,0 L12.5,4.5 L9,8.5 L7,7 L7,17 Q7,20.5 3.5,20.5 L1,20.5 L0,18 L-1,20.5 L-3.5,20.5 Q-7,20.5 -7,17 L-7,7 L-9,8.5 L-12.5,4.5 Z",
+  sock: "M-3,0 L3,0 L3,11 Q3,15 8,15 L9,19 L-1,19 Q-3,19 -3,15 Z",
+  dress: "M-4.5,0 Q0,2.5 4.5,0 L6,6 L11.5,22 Q0,24 -11.5,22 L-6,6 Z"
+};
 
-function handprintHeart() {
-  const prints = [
-    [-46, -92, -18, C.coral, 1.35], [44, -94, 16, C.sky, 1.3], [0, -62, -4, C.mustard, 1.25],
-    [-80, -44, -38, C.leaf, 1.25], [80, -44, 34, C.pink, 1.3], [-44, -8, -22, C.sky, 1.3],
-    [42, -6, 20, C.coral, 1.3], [0, 26, 4, C.leaf, 1.25]
-  ];
-  return prints.map(([x, y, r, c, s], i) =>
-    `<use href="#s-print" fill="${c}" filter="url(#f-paint${i % 3})" transform="translate(${x},${y}) rotate(${r}) scale(${s})"/>`).join("");
-}
-
-const LANTERN = "M-15,-16 C-22,-6 -22,8 -15,17 L15,17 C22,8 22,-6 15,-16 Z";
-const CAP = "M-8,-22 L8,-22 L8,-16 L-8,-16 Z";
-const CAP_B = "M-7,17 L7,17 L7,22 L-7,22 Z";
-
-function lantern(color, seed) {
-  const r = rng(seed);
-  const rays = Array.from({ length: 7 }, (_, i) => {
-    const a = (i / 7) * Math.PI * 2 + r() * 0.5, r1 = 27 + r() * 3, r2 = r1 + 4 + r() * 4;
-    return `M${(Math.cos(a) * r1).toFixed(1)},${(Math.sin(a) * r1).toFixed(1)} L${(Math.cos(a) * r2).toFixed(1)},${(Math.sin(a) * r2).toFixed(1)}`;
-  }).join(" ");
-  return `${scribble(rays, C.mustard, 2)}
-    ${inked(LANTERN, color)}
-    ${scribble("M-6,-15 C-11,-4 -11,6 -6,16 M6,-15 C11,-4 11,6 6,16", "rgba(0,0,0,.35)", 1.4)}
-    ${inked(CAP, C.peg, 1.6)}${inked(CAP_B, C.peg, 1.6)}
-    ${scribble("M0,22 q3,5 0,9 q-3,4 0,9", C.peg, 2)}`;
-}
-
-function lanternString() {
-  const sag = x => -128 + (1 - (x / 108) ** 2) * 37;
-  const xs = [-84, -42, 0, 42, 84], drops = [12, 32, 18, 36, 14], rots = [-5, 3, -2, 6, -4];
-  const cols = [C.coral, C.mustard, C.pink, C.coral, C.mustard];
-  return `${scribble("M-108,-128 C-50,-92 50,-90 108,-130", null, 1.8)}
-    ${xs.map((x, i) => {
-      const y = sag(x);
-      return `${scribble(`M${x},${y.toFixed(1)} L${x + 1},${(y + drops[i]).toFixed(1)}`, null, 1.3)}
-        <g transform="translate(${x + 1},${(y + drops[i] + 20).toFixed(1)}) rotate(${rots[i]}) scale(.8)">${lantern(cols[i], 60 + i)}</g>`;
+function saigonWires() {
+  const line = [[-58, -56], [-20, -30], [20, -24], [58, -38]];
+  const hung = [["tee", 0.16, -4], ["shorts", 0.36, 3], ["onesie", 0.56, -2], ["sock", 0.72, 5], ["dress", 0.88, -3]];
+  const cage = [90, 94, 98, 102].map(x => `M${x},-80 L${x},-66`).join(" ");
+  const bars = (from, to, top, bottom) => Array.from({ length: Math.floor((to - from) / 6) + 1 }, (_, i) =>
+    `M${from + i * 6},${top} L${from + i * 6},${bottom}`).join(" ");
+  return `<g ${LINE} stroke-width="1.5">
+      <path d="M-58,-135 L-58,8 M58,-135 L58,-12"/>
+      <path d="M-104,-122 L-74,-122 L-74,-102 L-104,-102 Z M-100,-116 L-78,-116 M-100,-111 L-78,-111 M-100,-106 L-78,-106 M-100,-102 L-96,-96 M-78,-102 L-82,-96"/>
+      <path d="M-116,-58 L-58,-58 M-116,-34 L-58,-34 ${bars(-110, -64, -58, -34)} M-118,-34 L-56,-34 L-56,-30 L-118,-30"/>
+      <path d="M-105,-68 L-95,-68 L-97,-58 L-103,-58 Z M-100,-68 C-104,-78 -110,-80 -113,-77 M-100,-68 C-98,-80 -94,-84 -89,-84 M-100,-68 C-101,-76 -100,-82 -99,-87"/>
+      <path d="M-110,-22 L-72,-22 L-72,8 L-110,8 Z M-91,-22 L-91,8 M-110,-15 L-72,-15 M-110,-8 L-72,-8 M-110,-1 L-72,-1"/>
+      <path d="M70,-128 L106,-128 L106,-96 L70,-96 Z M88,-128 L88,-96 M70,-120 L106,-120 M70,-112 L106,-112 M70,-104 L106,-104"/>
+      <path d="M96,-92 L96,-84 M86,-66 L86,-78 Q96,-92 106,-78 L106,-66 Z ${cage} M84,-66 L108,-66"/>
+      <path d="M58,-40 L116,-40 M58,-16 L116,-16 ${bars(64, 110, -40, -16)} M56,-16 L118,-16 L118,-12 L56,-12"/>
+      <path d="M-116,-128 C-60,-100 40,-104 116,-132 M-116,-120 C-50,-86 50,-92 116,-118 M-116,-110 C-40,-96 30,-70 116,-106 M-30,-99 C-28,-80 -12,-80 -12,-95"/>
+      <path d="M${line[0]} C${line[1]} ${line[2]} ${line[3]}"/>
+    </g>
+    ${hung.map(([k, t, r]) => {
+      const [x, y] = bezier(line, t);
+      return `<g transform="translate(${x.toFixed(1)},${(y - 1).toFixed(1)}) rotate(${r})">
+        <path d="${LITTLE[k]}" class="shirt inks" stroke-width="1.4" stroke-linejoin="round"/>
+        <path d="M-4,-3 L-4,3 M4,-3 L4,3" ${LINE} stroke-width="1.6"/>
+      </g>`;
     }).join("")}`;
 }
 
-const TWINKLE = "M-4,0 L4,0 M0,-4 L0,4 M-2.6,-2.6 L2.6,2.6 M-2.6,2.6 L2.6,-2.6";
-const SKY = [[-98, -60], [-64, -6], [92, -44], [66, 6], [-104, 30], [104, 28], [30, -150], [-44, -154]]
-  .map(([x, y], i) => i % 2
-    ? `<circle cx="${x}" cy="${y}" r="1.8" class="ink" opacity=".7"/>`
-    : scribble(TWINKLE, C.mustard, 1.6, `transform="translate(${x},${y})"`)).join("");
-
 const IDEAS = [
   {
-    id: "dictionary", garment: "tee", title: "chạm (v.) to touch",
-    desc: "A dictionary page someone has scribbled on: highlighted word, typed meanings, and a marker arrow pointing at the one that’s about us.",
-    shirts: ["cream", "white", "sage", "charcoal"],
-    chest: `<path d="M-27,-7 L22,-10 L23,4 L-26,7 Z" fill="${C.pink}" opacity=".75" filter="url(#f-crayon)"/>
-      ${hand("chạm", -3, 4, 21, { weight: 800, rot: -5, seed: 4 })}
-      <g transform="translate(32,-12) rotate(12) scale(.42)">${inked(HEART, C.coral, 4.5)}</g>`,
-    back: `<path d="M-80,-104 L66,-110 L70,-74 L-76,-68 Z" fill="${C.pink}" opacity=".75" filter="url(#f-crayon)" transform="rotate(-4)"/>
-      ${hand("chạm", -6, -78, 64, { weight: 800, rot: -5, seed: 3 })}
-      <text class="ink tw" x="-88" y="-44" font-size="12">(verb)</text>
-      <g class="ink tw" font-size="11">
-        <text x="-90" y="-16">1. to touch.</text>
-        <text x="-90" y="7">2. to reach someone’s heart.</text>
-        <text x="-90" y="30">3. to change a life, gently.</text>
+    id: "carelabel", garment: "tee", title: "Care Label",
+    desc: "Styled like the care tag inside a shirt, blown up across the back. It fits the clothesline idea: wash with friends, hang out to dry, and pass it on when it doesn’t fit anymore. One ink colour.",
+    shirts: ["white", "heather", "stone", "black"],
+    chest: `<rect x="-26" y="-11" width="52" height="22" rx="1.5" class="ink"/>
+      <rect x="-23" y="-8" width="46" height="16" fill="none" style="stroke:var(--shirt)" stroke-width=".8" stroke-dasharray="2 1.6"/>
+      <text class="shirt an" x="0" y="4.5" text-anchor="middle" font-size="13" font-weight="700" letter-spacing=".5">CHẠM</text>`,
+    back: `<rect x="-84" y="-140" width="168" height="252" rx="3" ${LINE} stroke-width="2"/>
+      <rect x="-78" y="-134" width="156" height="240" rx="2" ${LINE} stroke-width="1" stroke-dasharray="3 2.5"/>
+      <text class="ink an" x="-66" y="-96" font-size="44" font-weight="700" letter-spacing="1">CHẠM</text>
+      <text class="ink mono" x="-66" y="-80" font-size="7.5" letter-spacing="1">CARE INSTRUCTIONS</text>
+      <path d="M-66,-72 L66,-72 M-66,-26 L66,-26 M-66,82 L66,82" ${LINE} stroke-width="1"/>
+      <text class="ink an" x="-66" y="-52" font-size="17" font-weight="600">100% COMPASSION</text>
+      <text class="ink an" x="-66" y="-36" font-size="12" font-weight="500">100% LÒNG TRẮC ẨN</text>
+      ${careRow("wash", "WASH WITH FRIENDS", -12)}
+      ${careRow("dry", "HANG OUT TO DRY", 12)}
+      ${careRow("bleach", "DO NOT BLEACH", 36)}
+      ${careRow("pass", "OUTGROWN? PASS IT ON", 60)}
+      <text class="ink mono" x="-66" y="97" font-size="7.5" letter-spacing="1">MADE IN HỒ CHÍ MINH CITY</text>`
+  },
+  {
+    id: "shopsign", garment: "tee", title: "Saigon Shop Sign",
+    desc: "Borrowed from the hand-painted shop signs (biển hiệu) all over Saigon: heavy condensed red letters on a yellow board, with the motto in both Vietnamese and English. Two ink colours.",
+    shirts: ["white", "stone", "black"],
+    chest: `<rect x="-30" y="-13" width="60" height="26" fill="${SIGN_YELLOW}"/>
+      <rect x="-27.5" y="-10.5" width="55" height="21" fill="none" stroke="${SIGN_RED}" stroke-width="1.5"/>
+      <text class="anton" x="0" y="7" text-anchor="middle" font-size="19" fill="${SIGN_RED}" letter-spacing="1">CHẠM</text>`,
+    back: `<rect x="-92" y="-124" width="184" height="164" fill="${SIGN_YELLOW}"/>
+      <rect x="-86" y="-118" width="172" height="152" fill="none" stroke="${SIGN_RED}" stroke-width="3"/>
+      ${[[-80, -112], [80, -112], [-80, 28], [80, 28]].map(([x, y]) => `<circle cx="${x}" cy="${y}" r="2" fill="${SIGN_RED}"/>`).join("")}
+      <g fill="${SIGN_RED}" text-anchor="middle">
+        <text class="barlow" x="0" y="-96" font-size="14" font-weight="700" letter-spacing="2.5">THAY ĐỔI CUỘC SỐNG</text>
+        <text class="anton" x="0" y="-26" font-size="66" letter-spacing="2">CHẠM</text>
+        <text class="barlow" x="0" y="6" font-size="14" font-weight="700" letter-spacing="2.5">BẰNG LÒNG TRẮC ẨN</text>
+        <text class="barlow" x="0" y="26" font-size="9.5" font-weight="600" letter-spacing=".6">CHANGING LIVES THROUGH COMPASSION</text>
       </g>
-      ${scribble("M-91,37 C-50,41 0,34 58,39 C74,40 88,36 97,39", C.coral, 3)}
-      ${scribble("M52,86 C60,70 52,56 34,47 M26,54 L34,46 L37,57", null, 2.2)}
-      ${hand("that’s us!", 62, 104, 19, { font: "ph", weight: 400, rot: -7, seed: 5 })}
-      <g transform="translate(-52,92) rotate(-12) scale(1.45)">${inked(HEART, C.coral, 1.8)}</g>
-      ${hand("changing lives through compassion", 0, 146, 13, { font: "ph", weight: 400, seed: 8, bounce: 0.05, tilt: 3 })}`
+      <path d="M-40,13 L40,13" stroke="${SIGN_RED}" stroke-width="1"/>`
   },
   {
-    id: "clothesline", garment: "tee", title: "Hang Out With Us",
-    desc: "Your clothesline idea, drawn loose in marker and crayon: four little outfits pegged up, each spelling out a letter of C-H-Ạ-M.",
-    shirts: ["white", "sky", "cream", "charcoal"],
-    chest: `${scribble("M-40,-16 C-15,-6 15,-6 40,-16", null, 1.6)}
-      <g transform="translate(-22,-12) rotate(-6) scale(.5)">${inked(CLOTHES.tee, C.coral, 3.6)}</g>
-      <g transform="translate(0,-9) rotate(3) scale(.5)">${inked(CLOTHES.onesie, C.sky, 3.6)}</g>
-      <g transform="translate(22,-12) rotate(7) scale(.5)">${inked(CLOTHES.dress, C.mustard, 3.6)}</g>`,
-    back: `${clothesline()}
-      ${hand("every child", 0, 6, 28, { seed: 21 })}
-      ${hand("deserves", -6, 38, 28, { seed: 22 })}
-      ${scribble("M-58,92 C-20,97 30,88 70,93", C.mustard, 5)}
-      ${hand("colour!", 4, 80, 40, { fill: C.coral, weight: 800, rot: -4, seed: 23 })}
-      ${hand("changing lives through compassion", 0, 128, 13, { font: "ph", weight: 400, seed: 24, bounce: 0.05, tilt: 3 })}`
+    id: "wires", garment: "hoodie", title: "Saigon Wires",
+    desc: "A one-colour line drawing of a Saigon alley: a kids’ clothesline strung between two balconies, under the tangle of electric wires, with a bird cage and a potted plant. The text sits small and left-aligned underneath.",
+    shirts: ["sage", "stone", "heather", "navy"],
+    chest: `<path d="M-36,-10 L-4,-10" ${LINE} stroke-width="1.3"/>
+      <g transform="translate(-20,-9) scale(.95)"><path d="${LITTLE.onesie}" class="shirt inks" stroke-width="1.4" stroke-linejoin="round"/></g>
+      <text class="ink bvp" x="2" y="4" font-size="15" font-weight="600">chạm</text>`,
+    back: `${saigonWires()}
+      <g class="ink bvp">
+        <text x="-112" y="44" font-size="34" font-weight="700">chạm</text>
+        <text x="-112" y="64" font-size="11.5">changing lives through compassion</text>
+        <text x="-112" y="80" font-size="11" font-style="italic">thay đổi cuộc sống bằng lòng trắc ẩn</text>
+      </g>
+      <text class="ink mono" x="-112" y="102" font-size="8.5" letter-spacing="1.5">HỒ CHÍ MINH CITY</text>`
   },
   {
-    id: "hands", garment: "hoodie", title: "Little Hands, Big Hearts",
-    desc: "Eight painty handprints pressed into a wonky heart, the way a class of kids would actually do it. Even better: use real handprints from the children.",
-    shirts: ["white", "cream", "lavender", "sky"],
-    chest: `<use href="#s-print" fill="${C.coral}" filter="url(#f-paint1)" transform="rotate(-8) scale(.95)"/>
-      <g transform="translate(24,-22) rotate(14) scale(.36)">${scribble(HEART, null, 5)}</g>`,
-    back: `${handprintHeart()}
-      <g transform="translate(-100,30) rotate(-14) scale(.6)">${scribble(HEART, null, 3.4)}</g>
-      <g transform="translate(102,22) rotate(10) scale(.5)">${scribble(HEART, C.coral, 4)}</g>
-      ${hand("little hands,", 0, 94, 32, { seed: 31 })}
-      ${hand("big hearts.", 0, 134, 38, { fill: C.coral, weight: 800, rot: -3, seed: 32 })}`
-  },
-  {
-    id: "lanterns", garment: "hoodie", title: "Light the Way",
-    desc: "A crooked string of hand-drawn lanterns with little lines of light, on a navy hoodie. Chạm helps light the way for someone.",
-    shirts: ["navy", "charcoal", "cream", "sage"],
-    chest: `${scribble("M0,-36 L1,-24", null, 1.3)}
-      <g transform="translate(1,-2) rotate(-4) scale(.75)">${lantern(C.coral, 71)}</g>`,
-    back: `${SKY}
-      ${lanternString()}
-      ${hand("light the way", 0, 70, 30, { weight: 800, seed: 41 })}
-      ${hand("for someone.", 10, 104, 26, { font: "ph", weight: 400, rot: -3, seed: 42 })}
-      ${hand("chạm", 0, 140, 17, { weight: 700, seed: 43 })}
-      ${scribble("M-22,148 q5.5,-4 11,0 t11,0 t11,0 t11,0", C.mustard, 2)}`
+    id: "varsity", garment: "hoodie", title: "Varsity",
+    desc: "A classic college-style arch across the front, the kind of hoodie a student club actually wears every day. The back just has the motto in small type under the hood.",
+    shirts: ["heather", "stone", "navy", "forest"],
+    ink: { heather: VARSITY_GREEN, stone: VARSITY_GREEN, navy: INK_LIGHT, forest: INK_LIGHT },
+    frontAt: "center",
+    chest: `<path id="varsity-arc" d="M-90,34 A160,160 0 0 1 90,34" fill="none"/>
+      <text class="ink slab" font-size="40" letter-spacing="2.5"><textPath href="#varsity-arc" startOffset="50%" text-anchor="middle">CHẠM</textPath></text>
+      <text class="ink barlow" x="0" y="44" text-anchor="middle" font-size="12" font-weight="700" letter-spacing="3.5">HO CHI MINH CITY</text>
+      <path d="M-88,40 L-74,40 M74,40 L88,40" ${LINE} stroke-width="1.6"/>`,
+    back: `<g class="ink barlow" text-anchor="middle" font-weight="600">
+        <text x="0" y="-112" font-size="12" letter-spacing="1.5">THAY ĐỔI CUỘC SỐNG BẰNG LÒNG TRẮC ẨN</text>
+        <text x="0" y="-96" font-size="10" letter-spacing="1.5">CHANGING LIVES THROUGH COMPASSION</text>
+      </g>`
   }
 ];
 
 // ---------- rendering ----------
-function shirtVars(key) {
-  return `--shirt:${SHIRTS[key][1]};--dink:${DARK_SHIRTS.has(key) ? INK_LIGHT : INK_DARK}`;
+function shirtVars(idea, key) {
+  const ink = (idea.ink && idea.ink[key]) || (DARK_SHIRTS.has(key) ? INK_LIGHT : INK_DARK);
+  return `--shirt:${SHIRTS[key][1]};--dink:${ink}`;
 }
 
 function mockupSVG(idea, shirtKey) {
   const g = GARMENTS[idea.garment];
-  return `<svg class="mock" viewBox="0 0 820 480" role="img" aria-label="${idea.title}: ${idea.garment} front and back" style="${shirtVars(shirtKey)}">
-    <g transform="translate(5,8)">${g.draw("front")}<g transform="${g.chest}">${idea.chest}</g></g>
+  return `<svg class="mock" viewBox="0 0 820 480" role="img" aria-label="${idea.title}: ${idea.garment} front and back" style="${shirtVars(idea, shirtKey)}">
+    <g transform="translate(5,8)">${g.draw("front")}<g transform="${g[idea.frontAt || "chest"]}">${idea.chest}</g></g>
     <g transform="translate(415,8)">${g.draw("back")}<g transform="${g.back}">${idea.back}</g></g>
     <text class="lbl" x="205" y="474" text-anchor="middle">FRONT</text>
     <text class="lbl" x="615" y="474" text-anchor="middle">BACK</text>
@@ -281,7 +201,6 @@ function mockupSVG(idea, shirtKey) {
 }
 
 function renderIdeas() {
-  document.body.insertAdjacentHTML("afterbegin", DEFS);
   const grid = document.getElementById("ideas-grid");
   grid.innerHTML = IDEAS.map((idea, n) => `
     <figure class="idea" data-id="${idea.id}">
@@ -299,7 +218,8 @@ function renderIdeas() {
     const sw = e.target.closest(".sw");
     if (!sw) return;
     const fig = sw.closest("figure");
-    fig.querySelector("svg.mock").setAttribute("style", shirtVars(sw.dataset.shirt));
+    const idea = IDEAS.find(i => i.id === fig.dataset.id);
+    fig.querySelector("svg.mock").setAttribute("style", shirtVars(idea, sw.dataset.shirt));
     fig.querySelectorAll(".sw").forEach(b => b.setAttribute("aria-pressed", b === sw));
   });
   document.getElementById("ideas-count").textContent = IDEAS.length;
